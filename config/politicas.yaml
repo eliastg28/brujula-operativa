@@ -1,0 +1,117 @@
+# ─────────────────────────────────────────────────────────────
+#  Catálogo de Políticas Corporativas (gobernado por Ciberseguridad,
+#  Arquitectura y Cumplimiento). La tool MCP `check_access_policies`
+#  evalúa cada historia contra este catálogo: el agente NO inventa
+#  políticas, cita la regla que exige cada conformidad/acceso.
+#
+#  keywords: fragmentos (sin tildes, minúsculas) que activan la regla.
+#  tribus:   opcional — limita la regla a ciertas tribus.
+# ─────────────────────────────────────────────────────────────
+reglas:
+  - id: POL-SEG-014
+    politica: "Tratamiento de datos de tarjeta (PCI-DSS v4.0)"
+    requisito: "Conformidad de Ciberseguridad — evaluación PCI-DSS"
+    tipo: conformidad
+    area: Ciberseguridad
+    owner: Carla Mendoza
+    email: carla.mendoza@banco.demo
+    sla_dias: 3
+    critica: true
+    keywords: [pago, pasarela, tarjeta, cvv, tokeniz, cobro, checkout, adquirencia, visa, mastercard]
+    motivo: "La historia procesa o expone datos de medios de pago."
+
+  - id: POL-ARQ-002
+    politica: "Integración con terceros y APIs externas"
+    requisito: "Conformidad de Arquitectura — revisión de integración"
+    tipo: conformidad
+    area: Arquitectura
+    owner: Jorge Paredes
+    email: jorge.paredes@banco.demo
+    sla_dias: 5
+    critica: true
+    keywords: [integrar, integracion, pasarela, proveedor, api externa, tercero, webhook, buró, buro, bureau]
+    motivo: "Introduce una integración con un sistema externo al banco."
+
+  - id: POL-DAT-007
+    politica: "Gestión de accesos a datos en ambientes no productivos"
+    requisito: "Acceso a BD QA (lectura/escritura esquema transaccional)"
+    tipo: acceso
+    area: DBA / Datos
+    owner: Lucía Ramos
+    email: lucia.ramos@banco.demo
+    sla_dias: 2
+    critica: true
+    keywords: [pago, pasarela, conciliacion, base de datos, bd, reporte, migracion, transferencia, credito, scoring, rechazo]
+    motivo: "El desarrollo y las pruebas requieren datos del esquema transaccional en QA."
+
+  - id: POL-INF-011
+    politica: "Conectividad con terceros (firewall / whitelisting)"
+    requisito: "Apertura de firewall y whitelisting de IPs del proveedor"
+    tipo: acceso
+    area: Infraestructura / Redes
+    owner: Raúl Castillo
+    email: raul.castillo@banco.demo
+    sla_dias: 4
+    critica: false
+    keywords: [pasarela, proveedor, tercero, externo, buró, buro, bureau, api externa]
+    motivo: "Se necesita conectividad saliente hacia el proveedor externo."
+
+  - id: POL-PRV-003
+    politica: "Protección de datos personales del cliente"
+    requisito: "Conformidad de Legal / Privacidad de datos"
+    tipo: conformidad
+    area: Legal / Privacidad
+    owner: Patricia Núñez
+    email: patricia.nunez@banco.demo
+    sla_dias: 4
+    critica: true
+    keywords: [datos personales, dni, biometr, selfie, onboarding, huella, reconocimiento facial, geolocaliz]
+    motivo: "Se capturan o procesan datos personales sensibles del cliente."
+
+  - id: POL-SEG-020
+    politica: "Autenticación y gestión de identidades"
+    requisito: "Conformidad de Ciberseguridad — pentest de autenticación"
+    tipo: conformidad
+    area: Ciberseguridad
+    owner: Carla Mendoza
+    email: carla.mendoza@banco.demo
+    sla_dias: 3
+    critica: true
+    keywords: [login, contrasena, autenticacion, 2fa, otp, token digital, biometr, sesion, dispositivo]
+    motivo: "Modifica el flujo de autenticación o de identidad del cliente."
+
+  - id: POL-ROP-005
+    politica: "Riesgo operacional y prevención de fraude"
+    requisito: "Conformidad de Riesgo Operacional — matriz de fraude"
+    tipo: conformidad
+    area: Riesgo Operacional
+    owner: Martín Salas
+    email: martin.salas@banco.demo
+    sla_dias: 3
+    critica: true
+    keywords: [fraude, limite, transferencia, monto, reembolso, devolucion, contracargo]
+    motivo: "Afecta montos, límites o movimientos de dinero del cliente."
+
+  - id: POL-REG-001
+    politica: "Reportería regulatoria y auditoría"
+    requisito: "Conformidad de Cumplimiento Normativo"
+    tipo: conformidad
+    area: Cumplimiento
+    owner: Silvia Herrera
+    email: silvia.herrera@banco.demo
+    sla_dias: 5
+    critica: true
+    keywords: [regulatorio, regulador, anexo, sbs, uif, lavado de activos]
+    motivo: "Genera información que se reporta al regulador."
+
+  - id: POL-INF-030
+    politica: "Aprovisionamiento de ambientes y servicios"
+    requisito: "Solicitud de ambiente / recurso de infraestructura"
+    tipo: ambiente
+    area: Plataforma Cloud
+    owner: Kevin Lozano
+    email: kevin.lozano@banco.demo
+    sla_dias: 2
+    critica: false
+    keywords: [nuevo servicio, microservicio, kafka, cola de mensajes, topico, push, notificacion push, cache, redis]
+    motivo: "Requiere un recurso de infraestructura nuevo (cola, tópico, caché o servicio)."

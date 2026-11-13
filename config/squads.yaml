@@ -1,0 +1,35 @@
+# ─────────────────────────────────────────────────────────────
+#  Onboarding de tribus / squads
+#  Sumar un equipo nuevo = agregar un bloque aquí. El orquestador,
+#  los agentes y el MCP server no cambian (diseño desacoplado).
+# ─────────────────────────────────────────────────────────────
+squads:
+  - id: pagos
+    tribu: Tribu Pagos
+    squad: Squad Pasarelas & Cobros
+    jira_project: PAG
+    lt: Mariana Vega
+    po: Rodrigo Salinas
+    teams_channel: "#pagos-pasarelas"
+    color: "#2563EB"
+    story_seq_start: 142
+
+  - id: canales
+    tribu: Tribu Canales Digitales
+    squad: Squad App Móvil
+    jira_project: APP
+    lt: Fernando Quispe
+    po: Daniela Ortiz
+    teams_channel: "#canales-app"
+    color: "#7C3AED"
+    story_seq_start: 318
+
+  - id: riesgos
+    tribu: Tribu Riesgos
+    squad: Squad Decisión Crediticia
+    jira_project: RSK
+    lt: Gabriela Rojas
+    po: Andrés Molina
+    teams_channel: "#riesgos-credito"
+    color: "#0891B2"
+    story_seq_start: 77
