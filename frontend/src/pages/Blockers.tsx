@@ -89,7 +89,7 @@ export default function Blockers() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card className="bg-gradient-to-br from-navy-900 to-navy-700 p-5 text-white md:col-span-2 xl:col-span-1">
           <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-wide text-slate-300"><Hourglass className="h-4 w-4" />Demora operativa acumulada</div>
-          <div className="mt-2 font-mono text-[34px] font-bold tabular-nums leading-none">{liveTotal.toFixed(4)}<span className="ml-1 text-lg text-slate-300">días</span></div>
+          <div className="mt-2 font-mono text-[34px] font-bold tabular-nums leading-none">{liveTotal.toFixed(2)}<span className="ml-1 text-lg text-slate-300">días</span></div>
           <div className="mt-1.5 text-[12.5px] text-slate-300">≈ {Math.round(totalHours)} horas-persona esperando · contador en tiempo real</div>
         </Card>
         <Card className="p-5">
