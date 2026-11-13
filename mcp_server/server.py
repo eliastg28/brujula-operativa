@@ -81,7 +81,8 @@ def create_epic(squad_id: str, title: str, objective: str, keywords: list[str] |
     futuras). Es idempotente por título: si ya existe una épica con el mismo título, la devuelve."""
     with _logged("create_epic", {"squad_id": squad_id, "title": title}):
         norm = policies.normalize(title).strip()
-        for e in store.list_docs("epics", squad_id):
+        candidates = [e for e in store.list_docs("epics", squad_id) if e.get("jira") or not config.jira_live()]
+        for e in candidates:
             if policies.normalize(e["title"]).strip() == norm:
                 return {"key": e["key"], "title": e["title"], "source": "existente", "duplicate": True}
         kws = [policies.normalize(k).strip() for k in (keywords or []) if k and k.strip()]
@@ -97,6 +98,7 @@ def create_jira_story(
     acceptance_criteria_gherkin: str,
     epic_key: str = "",
     epic_confidence: float = 0.0,
+    context: str = "",
     story_points: int = 0,
     assignee: str = "",
     open_questions: list[str] | None = None,
@@ -112,6 +114,7 @@ def create_jira_story(
             "gherkin": acceptance_criteria_gherkin.strip(),
             "epic_key": epic_key or None,
             "epic_confidence": epic_confidence or None,
+            "context": context.strip(),
             "points": story_points or None,
             "assignee": assignee or None,
             "status": "refinement",
@@ -127,6 +130,19 @@ def create_jira_story(
         evaluation = dor.evaluate(doc, [])
         return {"key": doc["key"], "url": doc["jira_url"], "source": source,
                 "dor": {"light": evaluation["light"], "reasons": evaluation["reasons"]}}
+
+
+@mcp.tool()
+def link_story_to_epic(story_key: str, epic_key: str = "") -> dict:
+    """Vincula (o desvincula si epic_key está vacío) una historia a una épica en Jira.
+    Al cambiar el alcance, la aprobación DoR previa del dev se invalida."""
+    with _logged("link_story_to_epic", {"story_key": story_key, "epic_key": epic_key}):
+        story = store.get("stories", story_key)
+        if not story:
+            return {"ok": False, "error": f"Historia {story_key} no existe"}
+        source = jira.set_parent(story_key, epic_key) if story.get("jira") else "mock"
+        store.patch("stories", story_key, epic_key=epic_key or None, dor_approved_by=None, dor_approved_at=None)
+        return {"ok": True, "story_key": story_key, "epic_key": epic_key, "source": source}
 
 
 @mcp.tool()
@@ -218,6 +234,10 @@ def register_dependency(
             "status": "pending", "resolved_at": None, "escalated": False, "reminders": 0,
         }
         store.put("dependencies", dep_id, dep)
+        if (store.get("stories", story_key) or {}).get("jira"):
+            jira.add_comment(story_key, f"⏳ Dependencia operativa registrada ({dep_id}): {name}. "
+                                        f"Owner: {owner_name} ({owner_area}). SLA: {dep['sla_days']} días. "
+                                        f"{'CRÍTICA: bloquea el DoR. ' if critical else ''}Política: {policy_ref}.")
         return {"id": dep_id, "status": "pending", "requested_at": dep["requested_at"], "duplicate": False}
 
 

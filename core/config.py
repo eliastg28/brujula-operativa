@@ -27,6 +27,7 @@ AI_TIMEOUT = float(_env("AI_TIMEOUT", "60"))
 JIRA_BASE_URL = _env("JIRA_BASE_URL").rstrip("/")
 JIRA_EMAIL = _env("JIRA_EMAIL")
 JIRA_API_TOKEN = _env("JIRA_API_TOKEN")
+JIRA_PROJECT_KEY = _env("JIRA_PROJECT_KEY")  # en live, proyecto único para todos los squads
 
 TEAMS_WEBHOOK_URL = _env("TEAMS_WEBHOOK_URL")
 

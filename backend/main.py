@@ -196,7 +196,7 @@ async def analyze(req: AnalyzeReq):
     if not domain.squad(req.squad):
         raise HTTPException(404, "Squad no existe")
     epic = store.get("epics", req.epic_key) if req.epic_key else None
-    if not epic or epic.get("squad") != req.squad:
+    if not epic or epic.get("squad") != req.squad or (config.jira_live() and not epic.get("jira")):
         raise HTTPException(400, "Selecciona una épica del squad (o crea una nueva) antes de analizar")
     queue: asyncio.Queue = asyncio.Queue()
     t0 = time.perf_counter()
@@ -286,18 +286,29 @@ async def move(key: str, body: MoveReq):
 
 
 @app.post("/api/stories/{key}/epic")
-def set_epic(key: str, body: EpicReq):
+async def set_epic(key: str, body: EpicReq):
     _story_or_404(key)
     if body.epic_key and not store.get("epics", body.epic_key):
         raise HTTPException(404, "Épica no existe")
-    store.patch("stories", key, epic_key=body.epic_key or None, epic_created=False,
-                dor_approved_by=None, dor_approved_at=None)
+    # Vía MCP: actualiza el vínculo en Jira real y reinicia la aprobación DoR.
+    await mcp_bridge.call_tool("link_story_to_epic", {"story_key": key, "epic_key": body.epic_key or ""})
     return domain.enrich_story(store.get("stories", key))
 
 
+def _squad_epics(squad: str) -> list[dict]:
+    items = store.list_docs("epics", squad)
+    # En modo live solo se ofrecen épicas que existen en Jira real.
+    return [e for e in items if e.get("jira")] if config.jira_live() else items
+
+
 @app.get("/api/epics")
-def epics(squad: str):
-    return store.list_docs("epics", squad)
+async def epics(squad: str):
+    if config.jira_live():
+        try:
+            await mcp_bridge.call_tool("get_active_epics", {"squad_id": squad})  # refresca el espejo desde Jira
+        except Exception as exc:  # noqa: BLE001
+            log.warning("No se pudieron refrescar épicas desde Jira: %s", exc)
+    return _squad_epics(squad)
 
 
 @app.get("/api/epics/suggest")
@@ -305,7 +316,7 @@ def suggest_epics(squad: str, title: str = ""):
     """Sugiere épicas EXISTENTES para el título (ranking determinista y rápido; no crea nada)."""
     if len(title.strip()) < 4:
         return []
-    ranked = offline.rank_epics(title, store.list_docs("epics", squad))
+    ranked = offline.rank_epics(title, _squad_epics(squad))
     return [r for r in ranked if r["score"] >= offline.MIN_EPIC_SCORE][:3]
 
 

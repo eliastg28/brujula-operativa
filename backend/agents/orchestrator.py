@@ -256,6 +256,7 @@ async def analyze(squad_id: str, title: str, epic_key: str, assignee: str | None
             "acceptance_criteria_gherkin": story_res["acceptance_criteria_gherkin"],
             "epic_key": epic_key,
             "epic_confidence": float(epic_res.get("confidence") or 0),
+            "context": story_res.get("context", ""),
             "story_points": int(story_res.get("story_points") or 0),
             "assignee": assignee or "",
             "open_questions": story_res.get("open_questions", []),
